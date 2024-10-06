@@ -7,15 +7,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./index.css";
 import App from "./App.tsx";
 import Fixture from "./components/fixture.tsx";
+import Layout from "./layout.tsx";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
-  },
-  {
-    path: "/fixture/:matchId",
-    element: <Fixture />,
+    element: <Layout />,
+    children: [
+      { index: true, element: <App /> },
+      { path: "fixture/:matchId", element: <Fixture /> },
+    ],
   },
 ]);
 

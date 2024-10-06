@@ -1,19 +1,20 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../../../lib/api";
-import type { Fixture } from "../../../lib/entities/statistics";
+import type { Response } from "../../../lib/entities/fixture";
 
-export const useGetStats = (matchId: string) => {
+export const useGetFixture = (fixtureId: string) => {
   const query = useQuery({
-    queryKey: ["stats", matchId],
+    queryKey: ["fixture", fixtureId],
     queryFn: async () => {
-      const { data } = await api.get<{ response: Fixture[] }>(
-        `/fixtures/statistics?fixture=${matchId}`
+      const { data } = await api.get<{ response: Response[] }>(
+        `/fixtures?id=${fixtureId}`
       );
 
       console.log(data);
 
       return data.response;
     },
+
     staleTime: 60000, // 1 minute
     refetchInterval: 60000, // 1 minute
   });

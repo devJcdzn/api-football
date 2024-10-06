@@ -1,113 +1,96 @@
-interface Team {
-  Nm: string; // Nome do time
-  ID: string; // ID do time
-  Img: string; // URL da imagem do time
-  Abr: string; // Abreviação do nome do time
-  tbd: number; // Indica se o time é virtual
-  Gd: number; // Gênero do time
-  Pids: any[]; // IDs de jogadores associados ao time
-  CoNm: string; // Nome do país do time
-  CoId: string; // ID do país do time
-  HasVideo: boolean; // Indica se há vídeo disponível para o time
-}
+import { ClassValue, clsx } from "clsx";
+import type { IconType } from "react-icons/lib";
+import { TbBallFootball, TbBallFootballOff } from "react-icons/tb";
+import { FaArrowRightArrowLeft } from "react-icons/fa6";
+import { RiFootballFill } from "react-icons/ri";
+import { twMerge } from "tailwind-merge";
 
-interface Event {
-  Eid: string; // ID do evento/jogo
-  T1: Team[]; // Time 1 (casa)
-  T2: Team[]; // Time 2 (fora)
-  Tr1: string; // Pontuação do Time 1
-  Tr2: string; // Pontuação do Time 2
-  Trh1?: string; // Pontuação no primeiro tempo do Time 1
-  Trh2?: string; // Pontuação no primeiro tempo do Time 2
-  Eps: string; // Status do evento
-  Esid: number; // ID do status do evento
-  Esd: string; // Data de início do evento
-  [key: string]: any; // Outros campos que podem existir
-}
-
-export interface Stage {
-  Sid: string; // ID da fase
-  Snm: string; // Nome da fase
-  Scd: string; // Código da fase
-  badgeUrl: string; // URL do badge
-  firstColor: string; // Cor primária
-  Cid: string; // ID do país
-  Cnm: string; // Nome do país
-  CnmT: string; // Nome do país em formato título
-  Csnm: string; // Nome curto do país
-  Ccd: string; // Código do país
-  CompId: string; // ID da competição
-  CompN: string; // Nome da competição
-  CompD: string; // Descrição da competição
-  CompST: string; // Subtítulo da competição
-  Scu: number; // Indica se é uma copa
-  Sds: string; // Nome curto da fase
-  Chi: number; // Indicador de fase oculta
-  Shi: number; // Indicador de estágio oculto
-  Ccdiso: string; // Código ISO do país
-  Sdn: string; // Nome do estágio
-  Feed: any; // Feed de eventos
-  Events: Event[]; // Feed de eventos
-}
-
-type Match = {
-  matchStartDate: string;
-  matchStatus: string;
-  eventId: string;
-  homeTeam: {
-    name: string;
-    id: string;
-    badge: string;
-    goals: string;
-  };
-  awayTeam: {
-    name: string;
-    id: string;
-    badge: string;
-    goals: string;
-  };
+export const cn = (...inputs: ClassValue[]) => {
+  return twMerge(clsx(inputs));
 };
 
-type Fixture = {
-  competitionId: string;
-  competitionName: string;
-  leagueColor: string;
-  countryName: string;
-  matches: Match[];
+export const isGameLive = (elapsed?: number | null) => {
+  // const gameStartTime = new Date(fixtureDate).getTime();
+  // const currentTime = new Date().getTime();
+  // const gameDuration = 90 * 60 * 1000; // 90 minutes in milliseconds
+  if (!elapsed) return false;
+
+  return elapsed > 0 && elapsed < 90; // Verifica se o jogo está em andamento (com base nos minutos jogados)
 };
 
-export const extractFixtureData = (stage: Stage) => {
-  const gameDetails: Partial<Fixture> = {};
+export const translateStats = (statType: string): string => {
+  const translations: { [key: string]: string } = {
+    "Shots on Goal": "Chutes a Gol",
+    "Shots off Goal": "Chutes Fora do Gol",
+    "Total Shots": "Total de Chutes",
+    "Blocked Shots": "Chutes Bloqueados",
+    "Shots insidebox": "Chutes Dentro da Área",
+    "Shots outsidebox": "Chutes Fora da Área",
+    Fouls: "Faltas",
+    "Corner Kicks": "Escanteios",
+    Offsides: "Impedimentos",
+    "Ball Possession": "Posse de Bola",
+    "Yellow Cards": "Cartões Amarelos",
+    "Red Cards": "Cartões Vermelhos",
+    "Goalkeeper Saves": "Defesas do Goleiro",
+    "Total passes": "Total de Passes",
+    "Passes accurate": "Passes Precisos",
+    "Passes %": "Porcentagem de Passes",
+    expected_goals: "Gols Esperados",
+    goals_prevented: "Gols Impedidos",
+  };
+  return translations[statType] || statType; // Return original if no translation found
+};
 
-  // Extraindo dados da competição
-  gameDetails.competitionId = stage.Sid;
-  gameDetails.competitionName = stage.Snm;
-  gameDetails.countryName = stage.Cnm;
-  gameDetails.leagueColor = stage.firstColor;
+export const translateEvents = (
+  eventType: string
+): { translate: string; style: string; icon?: IconType } => {
+  const translations: {
+    [key: string]: { translate: string; style: string; icon?: IconType };
+  } = {
+    "Normal Goal": {
+      translate: "Gooool",
+      style: "text-emerald-500",
+      icon: TbBallFootball,
+    },
+    "Own Goal": {
+      translate: "Gol Contra",
+      style: "text-blue-500",
+      icon: TbBallFootball,
+    },
+    Penalty: {
+      translate: "Penalty",
+      style: "",
+      icon: RiFootballFill,
+    },
+    "Missed Penalty": {
+      translate: "Penalty Perdido",
+      style: "text-gray-500",
+      icon: TbBallFootballOff,
+    },
+    "Yellow Card": {
+      translate: "Cartão Amarelo",
+      style: "text-yellow-500",
+    },
+    "Red Card": {
+      translate: "Cartão Vermelho",
+      style: "text-red-500",
+    },
+    Substitution: {
+      translate: "Substituição",
+      style: "text-gray-500",
+      icon: FaArrowRightArrowLeft,
+    },
+    "Goal cancelled": {
+      translate: "Gol Anulado",
+      style: "text-gray-500",
+      icon: TbBallFootballOff,
+    },
+    "Penalty confirmed": {
+      translate: "Penalty confirmado",
+      style: "text-blue-500",
+    },
+  };
 
-  gameDetails.matches = [];
-
-  stage.Events.forEach((event) => {
-    gameDetails.matches?.push({
-      eventId: event?.Eid,
-      matchStartDate: event?.Esd,
-      matchStatus: event?.Eps,
-      homeTeam: {
-        name: event.T1[0].Nm,
-        id: event.T1[0].ID,
-        badge: event.T1[0].Img,
-        goals: event.Tr1,
-      },
-      awayTeam: {
-        name: event.T2[0].Nm,
-        id: event.T2[0].ID,
-        badge: event.T2[0].Img,
-        goals: event.Tr2,
-      },
-    });
-  });
-
-  console.log(stage.Events);
-
-  return gameDetails;
+  return translations[eventType] || eventType;
 };

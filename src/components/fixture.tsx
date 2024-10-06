@@ -1,79 +1,50 @@
-import { useParams } from "react-router-dom";
-import { Navbar } from "./navbar";
-import type { Fixture } from "../lib/entities/statistics";
-import { EmptyData } from "./empty-data";
-import { useGetStats } from "../features/stats/api/use-get-stats";
-import { Footer } from "./footer";
-// import { fixtureData } from "../lib/data-test";
+// import { useGetStats } from "../features/stats/api/use-get-stats";
+import { FixtureCard } from "./fixture-card";
+import { FixtureStatsTab } from "./fixture-stats-tabs";
+import {
+  FixtureStatsContent,
+  FixtureStatsEvents,
+  FixtureStatsLineUp,
+} from "./fixture-stats-contents";
+import { useGetFixture } from "../features/fixture/api/use-get-fixture";
+import { useParams, useSearchParams } from "react-router-dom";
+import { FixtureGoalCard } from "./fixture-goal-card";
+import { MaxWidthWrapper } from "./max-width-wrapper";
 
 function Fixture() {
-  // const [data, setDate] = useState<Fixture[] | null>(null);
   const params = useParams();
+  const [searchParams] = useSearchParams();
 
-  const statsQuery = useGetStats(params.matchId ?? "");
-  const data = statsQuery.data;
-
-  // const data: Fixture[] = [];
+  const { data, isLoading } = useGetFixture(params.matchId!);
+  const currentTab = searchParams.get("tab");
 
   return (
-    <>
-      <Navbar />
-      {!data || data.length == 0 ? (
-        <EmptyData stats />
+    <MaxWidthWrapper className="w-full lg:max-w-4xl">
+      {isLoading || !data ? (
+        <div className="min-h-[100vh] w-full my-6 px-4 md:px-2 lg:px-0">
+          <p>Carregando...</p>
+        </div>
       ) : (
-        <div className="max-w-[1160px] px-6 py-4 mx-auto flex flex-col items-center">
-          <div className="flex flex-col bg-slate-300/30 rounded-xl gap-4 p-4 items-center justify-center w-full">
-            <div className="flex flex-col items-center w-[90%] mx-auto">
-              <div className="w-full flex items-center justify-between mb-6">
-                <div className="flex flex-col items-center gap-2 mb-2">
-                  <img
-                    src={data[0].team.logo}
-                    className="w-[30%] md:w-[50%] object-cover"
-                    alt={data[0].team.name}
-                  />
-                  <div className="text-base font-semibold">
-                    {data[0].team.name}
-                  </div>
-                </div>
-                <div className="flex flex-col items-center gap-2 mb-2">
-                  <img
-                    src={data[1].team.logo}
-                    className="w-[30%] md:w-[50%] object-cover"
-                    alt={data[1].team.name}
-                  />
-                  <div className="text-base font-semibold">
-                    {data[1].team.name}
-                  </div>
-                </div>
-              </div>
-              <div className="text-lg font-semibold bg-slate-800 text-slate-300 mb-6 w-full text-center">
-                Estatísticas
-              </div>
-              <div className="w-[100%] flex items-center justify-between">
-                <div className="flex-1 flex flex-col items-center gap-3">
-                  {data[0].statistics.map((stats) => (
-                    <span key={stats.type}>{stats.value ?? 0}</span>
-                  ))}
-                </div>
-                <div className="flex-1 flex flex-col items-center gap-3">
-                  {data[0].statistics.map((stats) => (
-                    <span className="font-semibold" key={stats.type}>
-                      {stats.type}
-                    </span>
-                  ))}
-                </div>
-                <div className="flex-1 flex flex-col items-center gap-3">
-                  {data[1].statistics.map((stats) => (
-                    <span key={stats.type}>{stats.value ?? 0}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="min-h-[100vh] w-full my-6 px-4 md:px-2 lg:px-0">
+          {isLoading ? (
+            <p>Loading...</p>
+          ) : (
+            <>
+              <FixtureCard data={data[0]} />
+              <FixtureGoalCard data={data[0]} />
+              <FixtureStatsTab />
+              {currentTab === "stats" || !currentTab ? (
+                <FixtureStatsContent data={data[0]} />
+              ) : currentTab === "lineup" ? (
+                <FixtureStatsLineUp data={data[0]} />
+              ) : (
+                <FixtureStatsEvents data={data[0]} />
+              )}
+            </>
+          )}
         </div>
       )}
-      <Footer />
-    </>
+    </MaxWidthWrapper>
   );
 }
 

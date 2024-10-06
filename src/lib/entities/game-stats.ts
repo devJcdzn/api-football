@@ -18,7 +18,7 @@ export interface Fixture {
 }
 
 export interface Periods {
-  first: number;
+  first: number | null;
   second: any;
 }
 
@@ -31,7 +31,7 @@ export interface Venue {
 export interface Status {
   long: string;
   short: string;
-  elapsed: number;
+  elapsed: number | null;
 }
 
 export interface League {
@@ -53,19 +53,19 @@ export interface Home {
   id: number;
   name: string;
   logo: string;
-  winner: boolean;
+  winner: boolean | null;
 }
 
 export interface Away {
   id: number;
   name: string;
   logo: string;
-  winner: boolean;
+  winner: boolean | null;
 }
 
 export interface Goals {
-  home: number;
-  away: number;
+  home: number | null;
+  away: number | null;
 }
 
 export interface Score {
@@ -76,8 +76,8 @@ export interface Score {
 }
 
 export interface Halftime {
-  home: number;
-  away: number;
+  home: number | null;
+  away: number | null;
 }
 
 export interface Fulltime {
